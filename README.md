@@ -2,7 +2,7 @@
 
 Meade DSI Color CCD capture software.
 
-Firmware must be load bofore into CCD: fxload -I firmware.fw -D /dev/bus/device/<#bus>/<#device> or via UDEV
+Firmware must be load before into CCD: fxload -I firmware.fw -D /dev/bus/device/<#bus>/<#device> or via UDEV
 
 Output raw image with CMYG mosaic (SONY ICX404AK sensor)
 
