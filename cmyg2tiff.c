@@ -177,6 +177,7 @@ int main(int argc, char *argv[])
 				naxes[1]--;
 				
 				//Improve luminosity
+				
 				for(y=0;y<naxes[1];y++)
 					for(x=0;x<naxes[0]*3;x++){
 						value = imageout[x+3*naxes[0]*y];
@@ -187,15 +188,15 @@ int main(int argc, char *argv[])
 				printf("max=%d\n",maxvalue);
 				printf("min=%d\n",minvalue);	
 				
-				factor = 65535/maxvalue *0.8;
-				offset = minvalue *0.8;
+				factor = 65535/(maxvalue-minvalue);
+				offset = minvalue;
 				printf("factor=%d\n",factor);
 				printf("offset=%d\n",offset);
 				
 				for(y=0;y<naxes[1];y++)
 					for(x=0;x<naxes[0]*3;x++){
 						value = imageout[x+3*naxes[0]*y];
-						value = value*factor-offset;
+						value = (value-offset)*factor;
 						imageout[x+3*naxes[0]*y] = value;
 					}
 				
