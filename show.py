@@ -8,6 +8,12 @@ if not os.path.isdir("work"):
 	os.mkdir("work")
 os.chdir("work")
 
+if os.path.isfile("cmyg.fits"):
+	os.remove("cmyg.fits")
+	
+if os.path.isfile("color.tif"):
+	os.remove("color.tif")
+
 duration = sys.argv[1] # 1/10000 sec
 
 cmd = path+"MeadeDSIColor -e " + duration + " -g 10 -o 0 -f"
@@ -16,8 +22,8 @@ cmd = path+"cmyg2tiff cmyg.fits"
 os.system(cmd)
 cmd = "eog color.tif"
 ret = os.system(cmd)
-os.remove("cmyg.fits")
-os.remove("color.tif")
+#os.remove("cmyg.fits")
+#os.remove("color.tif")
 
 os.chdir("..")
 
