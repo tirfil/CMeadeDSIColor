@@ -3,7 +3,8 @@
 Meade DSI Color CCD capture software.
 
 Beware:
-Firmware must be load before into CCD: fxload -I firmware.fw -D /dev/bus/device/<#bus>/<#device> or via UDEV rules
+Firmware must be load before into CCD: fxload -I firmware.fw -D /dev/bus/device/<#bus>/<#device> or via UDEV rules: 
+see https://github.com/MParygin/l.dsi2pro.fw or meade-deepskyimager.hex on https://github.com/indilib/indi
 
 Output raw image with CMYG mosaic (SONY ICX404AK sensor)
 
