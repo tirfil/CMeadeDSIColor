@@ -23,7 +23,7 @@ Transform cmyg mosaic from SONY ICS404AK sensor into TIFF format image.
 
 *focus.py < exposure >*
 
-Python script for CCD focus setting. (use eog viewer)
+Python script for CCD focus setting. (use eog (eye of gnome) viewer)
 
 *show.py < exposure >*
 
