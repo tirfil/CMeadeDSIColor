@@ -43,8 +43,8 @@ int main(int argc, char *argv[])
     unsigned short *luminance;
     int anynul;
     
-    int xoffset = 23-1;
-    int yoffset = 13-1;
+    int xoffset = 23;
+    int yoffset = 13+1;
     
     unsigned short p00,p10,p11,p01;
     int cyan,yellow,magenta,cgreen;
