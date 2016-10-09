@@ -110,7 +110,7 @@
 
 // HW properties
 #define IMG_WIDTH 508
-#define IMG_HEIGHT 490
+#define IMG_HEIGHT 488
 
 #define READ_EVEN 253
 #define READ_ODD 252
