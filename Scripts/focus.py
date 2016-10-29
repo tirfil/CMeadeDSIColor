@@ -12,11 +12,11 @@ os.chdir("work")
 for i in range(10):
 	cmd = path+"MeadeDSIColor -e 100 -g 10 -o 0 -f"
 	os.system(cmd)
-	cmd = path+"cmyg2tiff cmyg.fits"
+	cmd = path+"cmyg2png cmyg.fits"
 	os.system(cmd)
 	pid = os.fork()
 	if not pid:
-		cmd = "eog color.tif"
+		cmd = "eog color.png"
 		ret = os.system(cmd)
 		exit(0)
 	else:
