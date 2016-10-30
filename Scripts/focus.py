@@ -25,6 +25,6 @@ for i in range(10):
 		os.kill(pid+2,signal.SIGTERM)
 		os.wait()
 	os.remove("cmyg.fits")
-	os.remove("color.tif")
+	os.remove("color.png")
 	
 	
