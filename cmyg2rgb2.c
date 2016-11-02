@@ -148,8 +148,8 @@ int main(int argc, char *argv[])
 						} 
 						
 						red[index] =   bounds(0,65535,(magenta + yellow - cyan)/2);
-						green[index] = bounds(0,65535,(cyan + yellow - magenta)/2);
-						//green[index] = bounds(0,65535,cgreen);
+						//green[index] = bounds(0,65535,(cyan + yellow - magenta)/2);
+						green[index] = bounds(0,65535,cgreen);
 						blue[index] =  bounds(0,65535,(magenta + cyan - yellow)/2);
 						luminance[index] = bounds(0,65535,(magenta + cyan + yellow)/3);
 						index++;
