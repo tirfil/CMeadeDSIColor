@@ -333,10 +333,14 @@ unsigned int i,k;
 
 	printf("Expose: %d in mode %d\n", exp, test);
 
-        if (cmd((test) ? CMD_TEST_PATTERN : CMD_TRIGGER, 0, 0, 0) != RES_ACK) return 0;
+    if (cmd((test) ? CMD_TEST_PATTERN : CMD_TRIGGER, 0, 0, 0) != RES_ACK) return 0;
+    
+    printf("Wait CCD exposure\n");
 	
 	// pause if not a test
 	if (test == 0) usleep(exp * 100);
+	
+	printf("Get image\n");
 
 	// get image by two bilk
 	rc_responseImage(rawA, IMG_CHUNK_EVEN);
