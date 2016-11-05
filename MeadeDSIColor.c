@@ -194,7 +194,7 @@ static int rc_responseImage(unsigned char *data, int len) {
 	int r, t;
 	//fprintf(stderr,"rc_responseImage in %s (%d)\n",data,len);
 	// transfer
-	r = libusb_bulk_transfer(rc_dev_dsi, EP_DATA, data, len, &t, 120000);
+	r = libusb_bulk_transfer(rc_dev_dsi, EP_DATA, data, len, &t, 0);
 	
 	// result	
 	if (r < 0) {
@@ -366,8 +366,9 @@ unsigned int i,k;
 		}
 	}
 	
+	
+	// swap bytes
 
-		// swap bytes
 	for (i = 0; i < IMG_WIDTH * IMG_HEIGHT * 2; i += 2) {
 		k = raw[i];
 		raw[i] = raw[i+1];
@@ -387,14 +388,17 @@ static void rc_defaults() {
 //        SET_OFFSET(300);
         SET_ROW_COUNT_EVEN(READ_EVEN);
         SET_ROW_COUNT_ODD(READ_ODD);
-        SET_VDD_MODE(0);
+        SET_VDD_MODE(0);		//AUTO
         SET_FLUSH_MODE(0);
         SET_CLEAN_MODE(0);
-        SET_READOUT_MODE(0);
-        SET_READOUT_SPD(1);
-        SET_EXP_MODE(1);
-//        SET_EXP_TIME(50);
+        SET_READOUT_MODE(0);  //DUAL
+        //SET_READOUT_MODE(1);    //SINGLE
+        SET_READOUT_SPD(1);		//HIGH
+        //SET_READOUT_SPD(0);	//NORMAL
+        SET_EXP_MODE(1);		//NORMAL
+        // SET_EXP_TIME(50);
         SET_NORM_READOUT_DELAY(7);
+        //SET_NORM_READOUT_DELAY(3);
 }
 
 /**
@@ -504,6 +508,29 @@ int main(int argc, char **argv)
 
 		// defaults
 		rc_defaults();
+	
+		// based on http://github.com/indilib/indi/3rdpart/indi-dsi/DsiDevice.cpp
+		if(exposure < 10000){
+			SET_READOUT_SPD(1);		//HIGH
+			SET_NORM_READOUT_DELAY(3);
+			SET_READOUT_MODE(0);  //DUAL
+			
+		} else {
+			SET_READOUT_SPD(0);	//NORMAL
+			SET_NORM_READOUT_DELAY(7);
+			SET_READOUT_MODE(1);    //SINGLE
+		}	
+		// GET_READOUT_MODE
+		if(exposure < 10000){
+			SET_VDD_MODE(1);		//ON
+		} else {
+			SET_VDD_MODE(0);		//AUTO
+		}
+		SET_GAIN(0);
+		SET_OFFSET(255);
+		SET_FLUSH_MODE(0);
+		// GET_READOUT_MODE
+		// GET_EXP_TIME
 
 		// gain
 		if (gain != -1) SET_GAIN(gain);
