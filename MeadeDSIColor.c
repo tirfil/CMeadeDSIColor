@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
+#include <time.h>
 
 #include "libusb.h"
 #include "fitsio.h"
@@ -415,7 +416,7 @@ void rc_write(unsigned char *img, int len, const char *basename)
 /**
  * Write buffer to FITS file
  **/
-void rc_fits(int exp)
+void rc_fits(int exp, int gain, int offset)
 {
 	fitsfile *fptr;
 	/* pointer to the FITS file; defined in fitsio.h */
@@ -423,14 +424,22 @@ void rc_fits(int exp)
 	long fpixel = 1, naxis = 2, nelements;
 	float exposure;
 	long naxes[2] = { IMG_WIDTH, IMG_HEIGHT };
+	time_t current_time;
+    char* c_time_string;
 	status = 0;
+	current_time = time(NULL);
+	c_time_string = ctime(&current_time);
 	/* initialize status before calling fitsio routines */
 	fits_create_file(&fptr, "cmyg.fits", &status);
 	fits_create_img(fptr, SHORT_IMG, naxis, naxes, &status);
 	exposure = exp * 0.0001;
+	fits_update_key(fptr, TSTRING, "DEVICE","Meade Deep Sky Imager Color","CCD device name",&status);
 	fits_update_key(fptr, TFLOAT, "EXPOSURE", &exposure, "Total Exposure Time", &status);
+	fits_update_key(fptr, TINT, "GAIN", &gain, "CCD gain", &status);
+	fits_update_key(fptr, TINT, "OFFSET", &offset, "CCD offset", &status);
+	fits_update_key(fptr, TSTRING, "DATE", c_time_string, "Date & time", &status);
 	nelements = naxes[0] * naxes[1];
-	fits_write_img(fptr, TSHORT, fpixel, nelements, &raw[0], &status);
+	fits_write_img(fptr, TUSHORT, fpixel, nelements, &raw[0], &status);
 	fits_close_file(fptr, &status);
 	fits_report_error(stderr, status);
 }
@@ -547,7 +556,7 @@ int main(int argc, char **argv)
 
 		// write FITS file
 		if (fits) {
-			rc_fits(exposure);
+			rc_fits(exposure,gain,offset);
 		}	
 
 		// write RAW file
