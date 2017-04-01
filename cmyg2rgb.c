@@ -147,16 +147,16 @@ int main(int argc, char *argv[])
 								magenta=0;
 						} 
 						
-						/* red[index] =   bounds(0,65535,(magenta + yellow - cyan)/2);
+						red[index] =   bounds(0,65535,(magenta + yellow - cyan)/2);
 						green[index] = bounds(0,65535,(cyan + yellow - magenta)/2);
-						green[index] = bounds(0,65535,cgreen);
-						blue[index] =  bounds(0,65535,(magenta + cyan - yellow)/2);
-						*/
-						// change color algo
-						red[index] =   bounds(0,65535,(magenta + yellow)/2);
-						green[index] = bounds(0,65535,(cyan + yellow)/2);
 						//green[index] = bounds(0,65535,cgreen);
-						blue[index] =  bounds(0,65535,(magenta + cyan)/2);
+						blue[index] =  bounds(0,65535,(magenta + cyan - yellow)/2);
+
+						// change color algo
+						//red[index] =   bounds(0,65535,(magenta + yellow)/2);
+						//green[index] = bounds(0,65535,(cyan + yellow)/2);
+						//green[index] = bounds(0,65535,cgreen);
+						//blue[index] =  bounds(0,65535,(magenta + cyan)/2);
 						luminance[index] = bounds(0,65535,(magenta + cyan + yellow)/3);
 						index++;
 						
