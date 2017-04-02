@@ -188,9 +188,9 @@ int main(int argc, char *argv[])
 				fits_update_key(fptrout, TSTRING, "CSBAND3","Johnson R","",&status);
 				fits_update_key(fptrout, TINT, "WCSAXES", &wcsaxes, "", &status);
 				//fits_update_key(fptrout, TINT, "NAXIS3", &naxis3, "", &status);
-				fits_write_img(fptrout, TUSHORT, 1, nelements, blue, &status);
+				fits_write_img(fptrout, TUSHORT, 1, nelements, red, &status);
 				fits_write_img(fptrout, TUSHORT, nelements+1, nelements, green, &status);
-				fits_write_img(fptrout, TUSHORT, 2*nelements+1, nelements, red, &status);
+				fits_write_img(fptrout, TUSHORT, 2*nelements+1, nelements, blue, &status);
 				fits_close_file(fptrout, &status);
 
 			}
