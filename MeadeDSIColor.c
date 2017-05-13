@@ -431,7 +431,7 @@ void rc_fits(int exp, int gain, int offset)
 	c_time_string = ctime(&current_time);
 	/* initialize status before calling fitsio routines */
 	fits_create_file(&fptr, "cmyg.fits", &status);
-	fits_create_img(fptr, SHORT_IMG, naxis, naxes, &status);
+	fits_create_img(fptr, USHORT_IMG, naxis, naxes, &status);
 	exposure = exp * 0.0001;
 	fits_update_key(fptr, TSTRING, "DEVICE","Meade Deep Sky Imager Color","CCD device name",&status);
 	fits_update_key(fptr, TFLOAT, "EXPOSURE", &exposure, "Total Exposure Time", &status);
