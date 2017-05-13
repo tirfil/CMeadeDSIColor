@@ -332,6 +332,8 @@ unsigned int write_ptr = 0;
 int x,y;
 unsigned int i,k;
 
+unsigned short val, mini, maxi;
+
 	printf("Expose: %d in mode %d\n", exp, test);
 
     if (cmd((test) ? CMD_TEST_PATTERN : CMD_TRIGGER, 0, 0, 0) != RES_ACK) return 0;
@@ -369,13 +371,21 @@ unsigned int i,k;
 	
 	
 	// swap bytes
+	mini = 65535;
+	maxi = 0;
 
 	for (i = 0; i < IMG_WIDTH * IMG_HEIGHT * 2; i += 2) {
 		k = raw[i];
 		raw[i] = raw[i+1];
 		raw[i+1] = k;
+		// add stat
+		val = 256*(unsigned short)raw[i+1]+(unsigned short)raw[i];
+		(val < mini) ? mini=val:0;
+		(val > maxi) ? maxi=val:0;
 	} 
-
+	// print stat
+	printf("Info: range= %d - %d\n",mini,maxi);
+	
 	return 1;
 }
 
@@ -511,6 +521,10 @@ int main(int argc, char **argv)
 		if (offset < 0) offset = 0;
 		if (offset > 1023) offset = 1023;
 	}
+	
+	//printf("Info: exposure= %d\n",exposure);
+	printf("Info: gain= %d\n",gain);
+	printf("Info: offset= %d\n",offset);
 
 	// open device
 	if (rc_open() == 0) {
