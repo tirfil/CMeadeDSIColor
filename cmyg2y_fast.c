@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 				naxes[1]--;
 				
 				fits_create_file(&fptrout,argv[2], &status);
-				fits_create_img(fptrout, SHORT_IMG, naxis, naxes, &status);
+				fits_create_img(fptrout, USHORT_IMG, naxis, naxes, &status);
 				fits_write_img(fptrout, TSHORT, 1, nelements, imageout, &status);
 				fits_close_file(fptrout, &status);
 			}

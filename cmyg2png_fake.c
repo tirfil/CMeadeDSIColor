@@ -1,7 +1,11 @@
-#include <string.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdarg.h>
 #include "fitsio.h"
-#include "tiffio.h"
+#define PNG_DEBUG 3
+#include <png.h>
 
 // 
 // transform cmyg mosaic from SONY ICS404AK sensor into RGB component
@@ -27,6 +31,15 @@ unsigned short bounds(unsigned short min, unsigned short max, int value)
 	}
 	
 	return (unsigned short)value;
+}
+
+void change_endianess(unsigned short* tab , int size)
+{
+	int i;
+	for(i=0;i<size;i++)
+	{
+		tab[i] = (tab[i] & 0xff00) >> 8 | (tab[i] & 0x00ff) << 8;
+	}
 }
 
 int main(int argc, char *argv[])
@@ -99,52 +112,56 @@ int main(int argc, char *argv[])
 						p10 = image[x-1+y*naxes[0]];
 						p01 = image[x+(y-1)*naxes[0]];
 						p11 = image[x-1+(y-1)*naxes[0]];
-						mode = ((yoffset+y)%4)*2+((xoffset+x)%2);
+						mode = ((yoffset+y)%6)*2+((xoffset+x)%2);
 						// conform to ICX404AK CMYG mosaic
 						switch(mode){
 							case 0:
+							case 4:
 								cgreen = p11;
 								yellow = p10;
 								cyan = p00;
 								magenta=p01;
 								break;
 							case 1:
+							case 5:
 								cgreen = p01;
 								yellow = p00;
 								cyan = p10;
 								magenta= p11;
 								break;
 							case 2:
+							case 6:
 								cgreen = p00;
 								yellow = p11;
 								cyan = p01;
 								magenta=p10;
 								break;
 							case 3:
+							case 7:
 								cgreen = p10;
 								yellow = p01;
 								cyan = p11;
 								magenta=p00;
 								break;
-							case 4:
+							case 8:
 								cgreen = p01;
 								yellow = p10;
 								cyan = p00;
 								magenta=p11;
 								break;
-							case 5:
+							case 9:
 								cgreen = p11;
 								yellow = p00;
 								cyan = p10;
 								magenta=p01;
 								break;
-							case 6:
+							case 10:
 								cgreen = p10;
 								yellow = p11;
 								cyan = p01;
 								magenta=p00;
 								break;
-							case 7:
+							case 11:
 								cgreen = p00;
 								yellow = p01;
 								cyan = p11;
@@ -160,14 +177,7 @@ int main(int argc, char *argv[])
 						
 						red[index] =   bounds(0,65535,(magenta + yellow - cyan)/2);
 						green[index] = bounds(0,65535,(cyan + yellow - magenta)/2);
-						//green[index] = bounds(0,65535,cgreen);
 						blue[index] =  bounds(0,65535,(magenta + cyan - yellow)/2);
-						
-						// change color algo
-						//red[index] =   bounds(0,65535,(magenta + yellow)/2);
-						//green[index] = bounds(0,65535,(cyan + yellow)/2);
-						//green[index] = bounds(0,65535,cgreen);
-						//blue[index] =  bounds(0,65535,(magenta + cyan)/2);
 						luminance[index] = bounds(0,65535,(magenta + cyan + yellow)/3);
 						
 						imageout[3*index]   = red[index];
@@ -207,80 +217,94 @@ int main(int argc, char *argv[])
 						imageout[x+3*naxes[0]*y] = value;
 					}
 				
-				
-				//TIFF
-				uint32 row;
 				int width = naxes[0];
 				int height = naxes[1];
-				unsigned char *buf = NULL;  
-				int sampleperpixel = 3;
-				tsize_t linewords = sampleperpixel * width;
-				TIFF *out= TIFFOpen("color.tif", "w");
-				TIFFSetField (out, TIFFTAG_IMAGEWIDTH, width);  // set the width of the image
-				TIFFSetField(out, TIFFTAG_IMAGELENGTH, height);    // set the height of the image
-				TIFFSetField(out, TIFFTAG_SAMPLESPERPIXEL, sampleperpixel);   // set number of channels per pixel
-				TIFFSetField(out, TIFFTAG_BITSPERSAMPLE, 16);    // set the size of the channels
-				TIFFSetField(out, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);    // set the origin of the image.
-				//   Some other essential fields to set that you do not have to understand for now.
-				TIFFSetField(out, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
-				TIFFSetField(out, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-				//TIFFSetField(out, TIFFTAG_COMPRESSION, COMPRESSION_LZW);
-				TIFFSetField(out, TIFFTAG_COMPRESSION, COMPRESSION_ADOBE_DEFLATE);
-				//    Allocating memory to store the pixels of current row
-				//printf("TIFFScanlineSize=%d\n",(int)TIFFScanlineSize(out));
-				//printf("linewords=%d\n",(int)linewords);
-				if (TIFFScanlineSize(out)==0)
-					buf =(unsigned char *)_TIFFmalloc(linewords*2);
-				else
-					buf =(unsigned char *)_TIFFmalloc(TIFFScanlineSize(out)*2);
-
-				// We set the strip size of the file to be size of one row of pixels
-				//TIFFSetField(out, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(out, 2*width*linewords));
-
-				//Now writing image to the file one strip at a time
-				for (row = 0; row < height; row++)
-				{
-					//memset(buf,0,linewords);
-					memcpy(buf, &imageout[(height-row)*linewords], linewords*2);    // check the index here, and figure out why not using h*linebytes
-					/*
-					for(i=0;i<linewords;i++){
-						buf[2*i]= (unsigned char)(imageout[i+row*linewords] & 0x00ff);
-						buf[2*i+1] = (unsigned char)(imageout[i+row*linewords] >> 8);
-					}
-					*/
-					
-					if (TIFFWriteScanline(out, buf, row, 0) < 0)
-						break;
-				}
-				TIFFClose(out);
-				if (buf)
-					_TIFFfree(buf);
 				
-/*
- * 				
-				fits_create_file(&fptrout,"color.fits", &status);
-				fits_create_img(fptrout, USHORT_IMG, 3, naxesc, &status);
-				fits_write_img(fptrout, TSHORT, 1, nelements*3, imageout, &status);
-				fits_close_file(fptrout, &status);
-*/		
-/*				
-				fits_create_file(&fptrout,"red.fits", &status);
-				fits_create_img(fptrout, USHORT_IMG, naxis, naxes, &status);
-				fits_write_img(fptrout, TSHORT, 1, nelements, red, &status);
-				fits_close_file(fptrout, &status);
-				fits_create_file(&fptrout,"green.fits", &status);
-				fits_create_img(fptrout, USHORT_IMG, naxis, naxes, &status);
-				fits_write_img(fptrout, TSHORT, 1, nelements, green, &status);
-				fits_close_file(fptrout, &status);
-				fits_create_file(&fptrout,"blue.fits", &status);
-				fits_create_img(fptrout, USHORT_IMG, naxis, naxes, &status);
-				fits_write_img(fptrout, TSHORT, 1, nelements, blue, &status);
-				fits_close_file(fptrout, &status);
-				fits_create_file(&fptrout,"luminance.fits", &status);
-				fits_create_img(fptrout, USHORT_IMG, naxis, naxes, &status);
-				fits_write_img(fptrout, TSHORT, 1, nelements, blue, &status);
-				fits_close_file(fptrout, &status);
-*/
+				FILE *fp = fopen("color.png", "wb");
+				if (!fp) {
+					fprintf(stderr,"Impossible to open for writing\n");
+					return -1;
+				}
+				
+				png_structp  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+				if (!png_ptr) {
+					fprintf(stderr,"Error: png_create_write_struct\n");
+					fclose(fp);
+					return -1;
+				}
+				
+				png_infop  info_ptr = png_create_info_struct(png_ptr);
+				if (!info_ptr) {
+					fprintf(stderr,"Error: png_create_info_struct\n");
+					png_destroy_write_struct(&png_ptr,(png_infopp)NULL);
+					fclose(fp);
+					return -1;
+				}
+				
+				if (setjmp(png_ptr->jmpbuf)) {
+					fprintf(stderr,"Error: setjmp png_create_info_struct\n");	
+					png_destroy_write_struct(&png_ptr, &info_ptr);
+					fclose(fp);
+					return -1;
+				}
+				
+				png_init_io(png_ptr, fp);
+
+				if (setjmp(png_ptr->jmpbuf)) {
+					fprintf(stderr,"Error: setjmp png_init_io\n");	
+					png_destroy_write_struct(&png_ptr, &info_ptr);
+					fclose(fp);
+					return -1;
+				}
+				
+				png_byte color_type = PNG_COLOR_TYPE_RGB;
+				png_byte bit_depth = 16;
+				
+				png_set_IHDR(png_ptr, info_ptr, width, height,
+                     bit_depth, color_type, PNG_INTERLACE_NONE,
+                     PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+                     
+                png_write_info(png_ptr, info_ptr);
+                
+                if (setjmp(png_ptr->jmpbuf)) {
+					fprintf(stderr,"Error: setjmp png_write_info\n");	
+					png_destroy_write_struct(&png_ptr, &info_ptr);
+					fclose(fp);
+					return -1;
+				}
+				
+				// transform unsigned int -> unsigned char
+				// big endian !!!
+				unsigned char *buf = NULL;
+				buf = (unsigned char *)malloc(sizeof(char)*width*height*6);
+				
+				change_endianess(imageout,width*height*3);				
+				memcpy(buf, imageout, width*height*6);
+				
+				png_bytepp rows = (png_bytepp)png_malloc(png_ptr,sizeof(png_bytep)*height);
+				for (y = 0; y < height; ++y) {
+					rows[y] = (png_bytep)(buf + (height -y) * width * 6);
+				}
+				
+                
+                png_write_image(png_ptr, rows);
+                
+                
+                if (setjmp(png_ptr->jmpbuf)) {
+					fprintf(stderr,"Error: setjmp png_write_image\n");	
+					png_destroy_write_struct(&png_ptr, &info_ptr);
+					fclose(fp);
+					return -1;
+				}
+				
+				png_write_end(png_ptr, NULL);
+				
+				png_destroy_write_struct(&png_ptr, &info_ptr);
+				
+				free(buf);
+				fclose(fp);
+				
+	
 			}
 			free(image);
 			free(red); free(green); free(blue); free(imageout);

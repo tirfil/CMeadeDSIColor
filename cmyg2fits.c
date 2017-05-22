@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 				
 				
 				fits_create_file(&fptrout,"3d.fits", &status);
-				fits_create_img(fptrout, SHORT_IMG, naxis, naxes3, &status);
+				fits_create_img(fptrout, USHORT_IMG, naxis, naxes3, &status);
 				fits_update_key(fptrout, TSTRING, "CSPACE","Johnson BVR","",&status);
 				fits_update_key(fptrout, TSTRING, "CTYPE3","BAND-SET","",&status);
 				fits_update_key(fptrout, TSTRING, "CNAME3","Color-space","",&status);

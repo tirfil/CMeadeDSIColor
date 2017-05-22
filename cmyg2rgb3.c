@@ -80,10 +80,10 @@ int main(int argc, char *argv[])
 				fits_read_img(fptr,TUSHORT,1,nelements,NULL,image, &anynul, &status);
 
 				nelements = (naxes[0]-1)*(naxes[1]-1);
-				red = malloc(sizeof(short)*nelements);
-				green = malloc(sizeof(short)*nelements);
-				blue = malloc(sizeof(short)*nelements);
-				luminance = malloc(sizeof(short)*nelements);
+				red = malloc(sizeof(unsigned short)*nelements);
+				green = malloc(sizeof(unsigned short)*nelements);
+				blue = malloc(sizeof(unsigned short)*nelements);
+				luminance = malloc(sizeof(unsigned short)*nelements);
 				index = 0;
 				
 				for(y=1;y<naxes[1];y++)
@@ -174,25 +174,25 @@ int main(int argc, char *argv[])
 				
 				
 				fits_create_file(&fptrout,"red.fits", &status);
-				fits_create_img(fptrout, SHORT_IMG, naxis, naxes, &status);
+				fits_create_img(fptrout, USHORT_IMG, naxis, naxes, &status);
 				fits_write_img(fptrout, TUSHORT, 1, nelements, red, &status);
 				fits_close_file(fptrout, &status);
 				printf("writing red.fits (%d)\n",status);
 				status = 0;
 				fits_create_file(&fptrout,"green.fits", &status);
-				fits_create_img(fptrout, SHORT_IMG, naxis, naxes, &status);
+				fits_create_img(fptrout, USHORT_IMG, naxis, naxes, &status);
 				fits_write_img(fptrout, TUSHORT, 1, nelements, green, &status);
 				fits_close_file(fptrout, &status);
 				printf("writing green.fits (%d)\n",status);
 				status = 0;
 				fits_create_file(&fptrout,"blue.fits", &status);
-				fits_create_img(fptrout, SHORT_IMG, naxis, naxes, &status);
+				fits_create_img(fptrout, USHORT_IMG, naxis, naxes, &status);
 				fits_write_img(fptrout, TUSHORT, 1, nelements, blue, &status);
 				fits_close_file(fptrout, &status);
 				printf("writing blue.fits (%d)\n",status);
 				status = 0;
 				fits_create_file(&fptrout,"luminance.fits", &status);
-				fits_create_img(fptrout, SHORT_IMG, naxis, naxes, &status);
+				fits_create_img(fptrout, USHORT_IMG, naxis, naxes, &status);
 				fits_write_img(fptrout, TUSHORT, 1, nelements, luminance, &status);
 				fits_close_file(fptrout, &status);
 				printf("writing luminance.fits (%d)\n",status);
