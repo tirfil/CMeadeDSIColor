@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
 				fits_close_file(fptrout, &status);
 			}
 			free(image);
-			free(red); free(green); free(blue);
+			free(red); free(green); free(blue); free(luminance);
 		}
 	}
 	fits_close_file(fptr, &status);

@@ -37,9 +37,6 @@ int main(int argc, char *argv[])
     long naxes[2];
     long nelements;
     unsigned short *image;
-    unsigned short *red;
-    unsigned short *green;
-    unsigned short *blue;
     unsigned short *luminance;
     int anynul;
     
@@ -53,13 +50,13 @@ int main(int argc, char *argv[])
     int x,y;
     int index;
     
-    if (argc == 3) {
-		mode = atoi(argv[2]);
+    if (argc == 4) {
+		mode = atoi(argv[3]);
 		yoffset = mode/2;
 		xoffset = mode%2;
 	} else 
-		if(argc != 2){
-			printf("Usage:\n%s <cmyg.fits> [mosaic position]\n",argv[0]);
+		if(argc != 3){
+			printf("Usage:\n%s <cmyg.fits> <lum.fits> [mosaic position]\n",argv[0]);
 			//printf("exiting %d\n",argc);
 			return 0;
 		}
@@ -76,9 +73,6 @@ int main(int argc, char *argv[])
 				fits_read_img(fptr,TUSHORT,1,nelements,NULL,image, &anynul, &status);
 
 				nelements = (naxes[0]-1)*(naxes[1]-1);
-				red = malloc(sizeof(short)*nelements);
-				green = malloc(sizeof(short)*nelements);
-				blue = malloc(sizeof(short)*nelements);
 				luminance = malloc(sizeof(short)*nelements);
 				index = 0;
 				
@@ -152,11 +146,6 @@ int main(int argc, char *argv[])
 						//green[index] = bounds(0,65535,cgreen);
 						//blue[index] =  bounds(0,65535,(magenta + cyan - yellow)/2);
 
-						// change color algo
-						red[index] =   bounds(0,65535,(magenta + yellow)/2);
-						green[index] = bounds(0,65535,(cyan + yellow)/2);
-						//green[index] = bounds(0,65535,cgreen);
-						blue[index] =  bounds(0,65535,(magenta + cyan)/2);
 						luminance[index] = bounds(0,65535,(magenta + cyan + yellow)/3);
 						index++;
 						
@@ -168,25 +157,13 @@ int main(int argc, char *argv[])
 				naxes[0]--; // one row and columm less
 				naxes[1]--;
 				
-				fits_create_file(&fptrout,"red.fits", &status);
-				fits_create_img(fptrout, USHORT_IMG, naxis, naxes, &status);
-				fits_write_img(fptrout, TUSHORT, 1, nelements, red, &status);
-				fits_close_file(fptrout, &status);
-				fits_create_file(&fptrout,"green.fits", &status);
-				fits_create_img(fptrout, USHORT_IMG, naxis, naxes, &status);
-				fits_write_img(fptrout, TUSHORT, 1, nelements, green, &status);
-				fits_close_file(fptrout, &status);
-				fits_create_file(&fptrout,"blue.fits", &status);
-				fits_create_img(fptrout, USHORT_IMG, naxis, naxes, &status);
-				fits_write_img(fptrout, TUSHORT, 1, nelements, blue, &status);
-				fits_close_file(fptrout, &status);
-				fits_create_file(&fptrout,"luminance.fits", &status);
+				fits_create_file(&fptrout,argv[2], &status);
 				fits_create_img(fptrout, USHORT_IMG, naxis, naxes, &status);
 				fits_write_img(fptrout, TUSHORT, 1, nelements, luminance, &status);
 				fits_close_file(fptrout, &status);
 			}
 			free(image);
-			free(red); free(green); free(blue); free(luminance);
+			free(luminance);
 		}
 	}
 	fits_close_file(fptr, &status);
